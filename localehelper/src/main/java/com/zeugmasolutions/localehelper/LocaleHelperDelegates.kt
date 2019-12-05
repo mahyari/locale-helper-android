@@ -1,10 +1,15 @@
 package com.zeugmasolutions.localehelper
 
+import android.R
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.view.View
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
 import java.util.*
+
 
 interface LocaleHelperActivityDelegate {
     fun setLocale(activity: Activity, newLocale: Locale)
@@ -27,7 +32,28 @@ class LocaleHelperActivityDelegateImpl : LocaleHelperActivityDelegate {
     override fun setLocale(activity: Activity, newLocale: Locale) {
         LocaleHelper.setLocale(activity, newLocale)
         locale = newLocale
-        activity.recreate()
+        recreate(activity, true)
+    }
+
+    fun recreate(activity: Activity, animate: Boolean) {
+        val restartIntent = Intent(activity, activity.javaClass)
+        val extras = activity.intent.extras
+        if (extras != null) {
+            restartIntent.putExtras(extras)
+        }
+        if (animate) {
+            ActivityCompat.startActivity(
+                activity,
+                restartIntent,
+                ActivityOptionsCompat
+                    .makeCustomAnimation(activity, R.anim.fade_in, R.anim.fade_out)
+                    .toBundle()
+            )
+        } else {
+            activity.startActivity(restartIntent)
+            activity.overridePendingTransition(0, 0)
+        }
+        activity.finish()
     }
 
     override fun attachBaseContext(newBase: Context): Context {
