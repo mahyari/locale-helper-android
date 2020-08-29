@@ -14,7 +14,7 @@ However, there are cases where you would want to change the language of your app
 **Download**
 =
 ```groovy
-implementation 'com.zeugmasolutions.localehelper:locale-helper-android:1.0.2'
+implementation 'com.zeugmasolutions.localehelper:locale-helper-android:1.0.4'
 ```
 **Features**
 =
@@ -35,7 +35,7 @@ implementation 'com.zeugmasolutions.localehelper:locale-helper-android:1.0.2'
 **(Option 1) Using base classes**
 1. Extend your app class
 ```kotlin
-class App : LocaleAwareApp() {
+class App : LocaleAwareApplication() {
 }
 ```
 2. Extend your base activity class
@@ -73,6 +73,12 @@ open class BaseActivity : AppCompatActivity() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(localeDelegate.attachBaseContext(newBase))
     }
+    
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
+        super.applyOverrideConfiguration(
+            localeDelegate.applyOverrideConfiguration(baseContext, overrideConfiguration)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +94,8 @@ open class BaseActivity : AppCompatActivity() {
         super.onPause()
         localeDelegate.onPaused()
     }
+    
+    override fun getResources(): Resources = localeDelegate.getResources(super.getResources())
 
     open fun updateLocale(locale: Locale) {
         localeDelegate.setLocale(this, locale)

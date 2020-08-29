@@ -1,8 +1,6 @@
 package com.zeugmasolutions.localehelper
 
-import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -31,18 +29,5 @@ open class LocaleAwareCompatActivity : AppCompatActivity() {
 
     open fun updateLocale(locale: Locale) {
         localeDelegate.setLocale(this, locale)
-    }
-}
-
-open class LocaleAwareApplication : Application() {
-    private val localeAppDelegate = LocaleHelperApplicationDelegate()
-
-    override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(localeAppDelegate.attachBaseContext(base))
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        localeAppDelegate.onConfigurationChanged(this)
     }
 }

@@ -4,6 +4,8 @@ import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Build
 import android.view.View
 import androidx.core.app.ActivityCompat
@@ -14,9 +16,15 @@ import java.util.*
 interface LocaleHelperActivityDelegate {
     fun setLocale(activity: Activity, newLocale: Locale)
     fun attachBaseContext(newBase: Context): Context
+    fun applyOverrideConfiguration(
+        baseContext: Context,
+        overrideConfiguration: Configuration?
+    ): Configuration?
+
     fun onPaused()
     fun onResumed(activity: Activity)
     fun onCreate(activity: Activity)
+    fun getResources(resources: Resources): Resources
 }
 
 class LocaleHelperActivityDelegateImpl : LocaleHelperActivityDelegate {
@@ -56,8 +64,23 @@ class LocaleHelperActivityDelegateImpl : LocaleHelperActivityDelegate {
         activity.finish()
     }
 
-    override fun attachBaseContext(newBase: Context): Context {
-        return LocaleHelper.onAttach(newBase)
+    override fun attachBaseContext(newBase: Context): Context = LocaleHelper.onAttach(newBase)
+
+    override fun applyOverrideConfiguration(
+        baseContext: Context, overrideConfiguration: Configuration?
+    ): Configuration? {
+        overrideConfiguration?.setTo(baseContext.resources.configuration)
+        overrideConfiguration?.setCurrentLocale(Locale.getDefault())
+        return overrideConfiguration
+    }
+
+    override fun getResources(resources: Resources): Resources {
+        return if (resources.configuration.currentLocale == Locale.getDefault()) {
+            resources
+        } else {
+            resources.configuration.setCurrentLocale(Locale.getDefault())
+            resources
+        }
     }
 
     override fun onPaused() {
@@ -68,15 +91,5 @@ class LocaleHelperActivityDelegateImpl : LocaleHelperActivityDelegate {
         if (locale == Locale.getDefault()) return
 
         activity.recreate()
-    }
-}
-
-class LocaleHelperApplicationDelegate {
-    fun attachBaseContext(base: Context): Context {
-        return LocaleHelper.onAttach(base)
-    }
-
-    fun onConfigurationChanged(context: Context) {
-        LocaleHelper.onAttach(context)
     }
 }
