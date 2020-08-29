@@ -4,6 +4,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
+import android.preference.PreferenceManager
 import java.util.*
 
 object LocaleHelper {
@@ -26,7 +27,8 @@ object LocaleHelper {
     fun isRTL(locale: Locale): Boolean = Locales.RTL.contains(locale.language)
 
     private fun getPreferences(context: Context): SharedPreferences {
-        return context.getSharedPreferences(LocaleHelper::class.java.name, Context.MODE_PRIVATE)
+        return PreferenceManager.getDefaultSharedPreferences(context)
+        //return context.getSharedPreferences(LocaleHelper::class.java.name, Context.MODE_PRIVATE)
     }
 
     private fun persist(context: Context, locale: Locale?) {
